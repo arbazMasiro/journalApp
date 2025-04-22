@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/journalApp
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: sql@12345
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: arbazhusain2023@gmail.com
+    password: urhr sqcj kbzc fkss
+    properties:
+      mail:
+        smtp:
+          auth:
+          starttls:
+            enable: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    generate-ddl: true
+    properties:
+      hibernate:
+        format_sql: true

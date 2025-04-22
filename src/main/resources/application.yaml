@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: JournalApp
+  profiles:
+    active: dev
+
+Weather:
+  API_KEY: 4a5df1a725f860fa751f35443ef1ae8e

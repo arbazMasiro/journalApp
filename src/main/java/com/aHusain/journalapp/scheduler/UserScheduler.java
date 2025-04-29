@@ -29,7 +29,7 @@ public class UserScheduler {
     @Scheduled(cron = "0 0 9 ? * SUN")
 //    @Scheduled(cron = "0 * * ? * *")
     public void fetchUsersForSAMail() {
-        List<User> userForSA = userService.getUserForSentimentalAnalysis();
+        List<User> userForSA = userService. getUserForSentimentalAnalysis();
         for (User user : userForSA) {
             List<JournalEntry> journalEntries = user.getJournalEntries();
             List<Sentiment> sentiments = journalEntries.stream().filter(x -> x.getDate().isAfter(LocalDateTime.now().minusDays(7))).map(x -> x.getSentiment()).toList();

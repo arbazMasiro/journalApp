@@ -1,6 +1,7 @@
 package com.ahusain.journalapp.securtity;
 
 import com.ahusain.journalapp.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,8 +11,9 @@ import java.util.Collections;
 
 public class CustomUserDetails implements UserDetails {
 
-    private final transient User user;
+    private final User user;
 
+    @Autowired
     public CustomUserDetails(User user) {
         this.user = user;
     }

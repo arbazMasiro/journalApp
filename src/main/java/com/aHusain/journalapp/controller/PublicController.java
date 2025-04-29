@@ -10,6 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/public")
 public class PublicController {
@@ -30,15 +33,15 @@ public class PublicController {
         return "Ok";
     }
 
-    @PostMapping("/adduser")
+    @PostMapping("/signup")
     public ResponseEntity<?> createUser(@RequestBody User user) {
         try {
             // Check if user with same username already exists
             if (userRepository.existsByUserName(user.getUserName())) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("User already Created");
             }
-            userService.saveUser(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(user);
+            User createdUser = userService.saveUser(user);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
 
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -56,4 +59,14 @@ public class PublicController {
         return "Email sent (or attempted) to: " + to;
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<?> authenticateUser(@RequestBody User user) {
+        String verify = userService.verify(user);
+        if (verify != null && !verify.isEmpty()) {
+            Map<String, String> response = new HashMap<>();
+            response.put("Token", verify);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
 }

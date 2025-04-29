@@ -5,6 +5,8 @@ import com.ahusain.journalapp.model.JournalEntry;
 import com.ahusain.journalapp.model.User;
 import com.ahusain.journalapp.repository.JournalEntryRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ExpressionException;
 import org.springframework.stereotype.Service;
@@ -32,19 +34,19 @@ public class JournalEntryService {
         if (user == null) {
             throw new UserNotSavedException("User not found: " + username);
         }
-        if (journalEntry.getSentiment() == null){
-            log.error("Sentiment is null, please provide your sentiment");
-            throw new IllegalArgumentException("Sentiment is required. Please provide your sentiment.");
-        }
 
         try {
             journalEntry.setUser(user);
             journalEntry.setDate(LocalDateTime.now());
+            if (journalEntry.getSentiment() == null || journalEntry.getSentiment().toString().isEmpty()){
+                log.error("Error Occurred for Sentiment {} , please provide your sentiment" , journalEntry.getSentiment());
+                throw new IllegalArgumentException("Sentiment is required. Please provide your sentiment.");
+            }
             journalEntry.setSentiment(journalEntry.getSentiment());
             JournalEntry save = journalEntryRepository.save(journalEntry);
             user.getJournalEntries().add(save);
             userService.saveUser2(user);
-            userService.findByUsername(username);// Correct
+            userService.findByUsername(username);
         } catch (Exception e) {
             throw new UserNotSavedException("Failed to save entry: " + e.getMessage());
         }

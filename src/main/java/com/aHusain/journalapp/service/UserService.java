@@ -4,9 +4,15 @@ import com.ahusain.journalapp.exception.UserNotSavedException;
 import com.ahusain.journalapp.model.JournalEntry;
 import com.ahusain.journalapp.model.User;
 import com.ahusain.journalapp.repository.UserRepository;
+import com.ahusain.journalapp.securtity.CustomUserDetailsService;
+import com.ahusain.journalapp.securtity.JWTService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,34 +26,40 @@ import java.util.Optional;
 public class UserService {
 
 
+    private final AuthenticationManager authenticationManager;
+    private final JWTService jwtService;
     private final UserRepository userRepository;
-
     private final PasswordEncoder encoder;
+    private final CustomUserDetailsService userDetailsService;
+    private ApplicationContext applicationContext;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder encoder) {
+    public UserService(AuthenticationManager authenticationManager, JWTService jwtService, UserRepository userRepository, PasswordEncoder encoder, CustomUserDetailsService userDetailsService) {
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.encoder = encoder;
+        this.userDetailsService = userDetailsService;
     }
 
-    public void saveUser(User user) {
+    public User saveUser(User user) {
         if (user.getUserName() == null || user.getUserName().trim().isEmpty()) {
             throw new IllegalArgumentException("Please Enter Name");
         }
+        user.setUserName(user.getUserName());
         if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
             throw new IllegalArgumentException("Please Enter Password");
         }
+        user.setPassword(encoder.encode(user.getPassword()));
         if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
             throw new IllegalArgumentException("Please Enter Valid Email");
         }
+        user.setEmail(user.getEmail());
         if (user.getRole() == null) {
             throw new IllegalArgumentException("Please Enter Role");
         }
-        user.setUserName(user.getUserName());
-        user.setEmail(user.getEmail());
         user.setRole(user.getRole());
-        user.setPassword(encoder.encode(user.getPassword()));
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     public void saveUser2(User user) {
@@ -131,7 +143,7 @@ public class UserService {
         if (all.isEmpty()) {
             throw new UserNotSavedException("No User Found");
         }
-      return all;
+        return all;
     }
 
     public List<User> deleteAllUser() {
@@ -143,4 +155,11 @@ public class UserService {
         return users;
     }
 
+    public String verify(User user) {
+        authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(user.getUserName(), user.getPassword()));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUserName());
+        return jwtService.getToken(userDetails.getUsername());
+
+    }
 }

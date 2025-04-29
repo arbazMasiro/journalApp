@@ -1,6 +1,14 @@
 package com.ahusain.journalapp.util;
 
-public interface PlaceHolders {
-    String CITY = "<city>";
-    String API_KEY = "<apiKey>";
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public enum PlaceHolders {
+
+    CITY("<city>"),
+    API_KEY("<apiKey>");
+
+    private final String value;
 }
